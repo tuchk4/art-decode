@@ -1,1 +1,137 @@
-Hi
+<html>
+  <head>
+    <title>Decode ArtCode</title>
+    <script src="./artcodedecode.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;400&display=swap');
+
+      * {
+        padding: 0;
+        margin: 0;
+        font-family: 'JetBrains Mono';
+      }
+
+      body {
+        background: radial-gradient(
+          circle,
+          rgba(246, 225, 255, 1) 0%,
+          rgba(228, 233, 238, 1) 100%
+        );
+
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25),
+          0 10px 10px rgba(0, 0, 0, 0.22);
+        border: 2px solid #000;
+
+        padding: 16px;
+      }
+      .root {
+        border: 2px solid #000;
+        padding: 16px;
+      }
+
+      .row {
+        /* border-bottom: 2px solid #000; */
+      }
+
+      .micro-form {
+        margin: 16px 0;
+      }
+
+      .code {
+        padding: 16px;
+        height: 500px;
+        overflow: auto;
+        font-size: 12px;
+      }
+
+      #decoded {
+        display: none;
+      }
+
+      .error {
+        color: red;
+      }
+
+      #loader {
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="root">
+      <h1>Decode ArtCode</h1>
+      <div>
+        <div class="micro-form">
+          <label for="artcodefile">Select file:</label>
+          <input id="artcodefile" type="file" />
+          <div id="loader">Processing....</div>
+        </div>
+      </div>
+      <div id="decoded" class="row">
+        <h2>Content:</h2>
+        <pre id="artcontent" class="code">const a = 1</pre>
+      </div>
+    </div>
+    <script>
+      function showLoader() {
+        document.getElementById('loader').style.visibility = 'visible';
+      }
+      function hideLoader() {
+        document.getElementById('loader').style.visibility = 'hidden';
+      }
+      function clearContentErrorState() {
+        document.getElementById('decoded').classList.remove('error');
+      }
+      function setContentErrorState() {
+        document.getElementById('decoded').classList.add('error');
+      }
+      function setContentVisibility(state) {
+        document.getElementById('artcontent').innerText = '';
+        document.getElementById('decoded').style.display = state
+          ? 'block'
+          : 'none';
+      }
+      function setArtContent(content) {
+        document.getElementById('artcontent').innerText = content;
+      }
+
+      const input = document.querySelector('#artcodefile');
+      input.addEventListener('change', onFileChange, false);
+
+      function onFileChange(evt) {
+        const files = evt.target.files;
+        const file = files[0];
+        showLoader();
+        clearContentErrorState();
+        setContentVisibility(false);
+
+        if (files && file) {
+          const reader = new FileReader();
+
+          reader.onload = function (readerEvt) {
+            const binaryString = readerEvt.target.result;
+            const base64 = btoa(binaryString);
+            decode(`data:image/png;base64,` + base64);
+          };
+
+          reader.readAsBinaryString(file);
+        }
+      }
+
+      async function decode(value) {
+        try {
+          const content = await artcodedecode.decodeFromBase64(value);
+          hideLoader();
+          setContentVisibility(true);
+          setArtContent(content);
+        } catch (e) {
+          hideLoader();
+          setContentVisibility(true);
+          setContentErrorState();
+
+          document.getElementById('artcontent').innerText = 'Error';
+        }
+      }
+    </script>
+  </body>
+</html>
