@@ -1,6 +1,6 @@
-Decode the ArtCodes
+# Decode the ArtCodes
 
-- https://tuchk4.github.io/artcode-decode/
+https://tuchk4.github.io/artcode-decode/
 
 Collections:
 
